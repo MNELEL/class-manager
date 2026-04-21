@@ -1,70 +1,49 @@
 let state = {
-    cols: 10, rows: 4,
-    students: [], 
+    cols: 6, rows: 6,
+    students: [],
     grid: Array(100).fill(null),
-    locked: new Set(),
-    preferences: []
+    hiddenDesks: new Set(), // שולחנות מחוקים
+    editMode: 'normal' // normal או structure
 };
 
-let currentEditIdx = null;
-let pressTimer;
-
-function changeGrid(type, val) {
-    if (type === 'cols') state.cols = Math.max(1, state.cols + val);
-    else state.rows = Math.max(1, state.rows + val);
-    document.getElementById('displayCols').innerText = state.cols;
-    document.getElementById('displayRows').innerText = state.rows;
-    render();
+// פתיחה/סגירה של תפריט בטלפון
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
 }
 
-function handleTouch(idx) {
-    pressTimer = setTimeout(() => {
-        if (state.grid[idx]) {
-            if (state.locked.has(idx)) state.locked.delete(idx);
-            else state.locked.add(idx);
-            render();
-        }
-    }, 700);
+// מצב עריכת מבנה (מחיקת שולחנות)
+function toggleStructureMode() {
+    state.editMode = state.editMode === 'normal' ? 'structure' : 'normal';
+    document.body.classList.toggle('structure-mode');
+    document.getElementById('structureBtn').classList.toggle('active');
 }
 
-function handleClick(idx) {
-    clearTimeout(pressTimer);
-    currentEditIdx = idx;
-    const sId = state.grid[idx];
-    const s = state.students.find(x => x.id === sId);
-    document.getElementById('editNameInput').value = s ? s.name : "";
-    document.getElementById('editModal').style.display = "flex";
-}
+// ייבוא אוניברסלי (Excel / JSON)
+async function handleUniversalImport(e) {
+    const file = e.target.files[0];
+    if (!file) return;
 
-function saveQuickEdit() {
-    const name = document.getElementById('editNameInput').value;
-    if (!name) return;
-    
-    let sId = state.grid[currentEditIdx];
-    if (!sId) {
-        sId = Date.now();
-        state.students.push({ id: sId, name: name, preferred: [], not_preferred: [] });
-        state.grid[currentEditIdx] = sId;
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, {header: 1});
+        state.students = rows.flat().filter(n => n).map((n, i) => ({id: i, name: n.toString()}));
     } else {
-        const s = state.students.find(x => x.id === sId);
-        if (s) s.name = name;
+        const text = await file.text();
+        state.students = JSON.parse(text).students || JSON.parse(text);
     }
-    closeModal();
     render();
 }
 
-function closeModal() { document.getElementById('editModal').style.display = "none"; }
-
-function calculateScore(idx, sId) {
-    const s = state.students.find(x => x.id === sId);
-    if (!s) return 0;
-    const partnerIdx = idx % 2 === 0 ? idx + 1 : idx - 1;
-    const pId = state.grid[partnerIdx];
-    if (!pId) return 0;
-    
-    if (s.preferred?.includes(pId)) return 100;
-    if (s.not_preferred?.includes(pId)) return -1000;
-    return 0;
+function handleDeskClick(idx) {
+    if (state.editMode === 'structure') {
+        if (state.hiddenDesks.has(idx)) state.hiddenDesks.delete(idx);
+        else state.hiddenDesks.add(idx);
+        render();
+    } else {
+        // כאן תבוא לוגיקת העריכה הידנית או הנעילה שדיברנו עליה
+    }
 }
 
 function render() {
@@ -74,42 +53,23 @@ function render() {
 
     for (let i = 0; i < state.cols * state.rows; i++) {
         const desk = document.createElement('div');
-        const sId = state.grid[i];
-        desk.className = `desk ${sId ? 'occupied' : ''} ${state.locked.has(i) ? 'locked' : ''}`;
+        desk.className = `desk ${state.hiddenDesks.has(i) ? 'hidden' : ''}`;
         
-        if (sId) {
-            const s = state.students.find(x => x.id === sId);
+        const sId = state.grid[i];
+        if (sId && !state.hiddenDesks.has(i)) {
+            const s = state.students.find(x => x.id == sId);
             desk.innerText = s ? s.name : "";
-            const score = calculateScore(i, sId);
-            if (score > 0) desk.classList.add('match');
-            if (score < -500) desk.classList.add('conflict');
-        } else {
-            desk.innerText = i + 1;
+        } else if (!state.hiddenDesks.has(i)) {
+            desk.innerText = "";
         }
 
-        desk.onmousedown = () => handleTouch(i);
-        desk.onclick = () => handleClick(i);
+        desk.onclick = () => handleDeskClick(i);
         container.appendChild(desk);
     }
 }
 
-async function importData(e) {
-    const file = e.target.files[0];
-    const data = JSON.parse(await file.text());
-    state.students = data.students || data;
-    render();
-}
-
-function runSmartSort() {
-    let unplaced = state.students.filter(s => !Array.from(state.locked).map(idx => state.grid[idx]).includes(s.id));
-    for (let i = 0; i < state.cols * state.rows; i++) {
-        if (state.locked.has(i)) continue;
-        if (unplaced.length > 0) {
-            state.grid[i] = unplaced.shift().id;
-        } else {
-            state.grid[i] = null;
-        }
-    }
+function changeGrid(type, val) {
+    if (type === 'cols') state.cols = Math.max(1, state.cols + val);
     render();
 }
 
