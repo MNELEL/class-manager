@@ -1,0 +1,40 @@
+:root {
+    --primary: #4f46e5;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text-main: #1e293b;
+    --danger: #ef4444;
+    --success: #10b981;
+}
+
+body {
+    font-family: 'Assistant', sans-serif;
+    background-color: var(--bg);
+    color: var(--text-main);
+    margin: 0;
+}
+
+.desk {
+    transition: all 0.3s ease;
+    border: 2px solid #e2e8f0;
+    background: var(--card);
+    border-radius: 12px;
+    cursor: grab;
+}
+
+.desk:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+.desk.conflict { border-color: var(--danger); background-color: #fef2f2; }
+.desk.perfect { border-color: var(--success); background-color: #f0fdf4; }
+
+/* מבנה הטורים 4-2-4 */
+.classroom-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 12px;
+}
+
+.gap-column { margin-right: 25px; }

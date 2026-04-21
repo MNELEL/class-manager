@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <title>מנהל כיתה ה1</title>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">ClassManager <span>H1</span></div>
+        <div class="actions">
+            <button onclick="autoLayout()">🪄 סידור אוטומטי</button>
+            <button onclick="exportMap()">📋 ייצא תמונה</button>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <h3>תלמידים (32)</h3>
+            <div id="student-list"></div>
+        </aside>
+        
+        <main class="workspace">
+            <div class="teacher-area">לוח הכיתה</div>
+            <div id="grid-container" class="classroom-grid"></div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
