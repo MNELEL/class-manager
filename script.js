@@ -71,6 +71,48 @@ function render() {
 function changeGrid(type, val) {
     if (type === 'cols') state.cols = Math.max(1, state.cols + val);
     render();
+}// הוסף למשתנה ה-state בראש הקובץ
+state.columnGaps = new Set(); // שומר את מספרי הטורים שרוצים רווח אחריהם
+state.editMode = 'normal';
+
+function toggleGapMode() {
+    state.editMode = state.editMode === 'gap' ? 'normal' : 'gap';
+    alert(state.editMode === 'gap' ? "לחץ על שולחן כדי להוסיף רווח משמאלו" : "חזרת למצב רגיל");
 }
+
+// עדכון פונקציית handleDeskClick
+function handleDeskClick(idx) {
+    if (state.editMode === 'structure') {
+        state.hiddenDesks.has(idx) ? state.hiddenDesks.delete(idx) : state.hiddenDesks.add(idx);
+    } 
+    else if (state.editMode === 'gap') {
+        const colIndex = idx % state.cols;
+        state.columnGaps.has(colIndex) ? state.columnGaps.delete(colIndex) : state.columnGaps.add(colIndex);
+    }
+    render();
+}
+
+// עדכון פונקציית ה-render (החלק שיוצר את ה-Desk)
+function render() {
+    const container = document.getElementById('gridContainer');
+    container.style.gridTemplateColumns = `repeat(${state.cols}, 1fr)`;
+    container.innerHTML = '';
+
+    for (let i = 0; i < state.cols * state.rows; i++) {
+        const desk = document.createElement('div');
+        const colIndex = i % state.cols;
+        
+        // הוספת המעבר אם הטור הזה נבחר
+        let className = `desk ${state.hiddenDesks.has(i) ? 'hidden' : ''}`;
+        if (state.columnGaps.has(colIndex)) {
+            className += ' column-spacer';
+        }
+        desk.className = className;
+
+        desk.onclick = () => handleDeskClick(i);
+        container.appendChild(desk);
+    }
+}
+
 
 render();
