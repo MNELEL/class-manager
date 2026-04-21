@@ -1,58 +1,46 @@
 :root {
-    --primary: #4f46e5;
-    --bg-app: #f8fafc;
-    --card-bg: #ffffff;
-    --accent-green: #10b981;
-    --accent-red: #ef4444;
+    --primary: #4f46e5; --bg: #f8fafc; --success: #22c55e; --danger: #ef4444;
 }
 
-body { margin: 0; font-family: 'Assistant', sans-serif; background: var(--bg-app); }
-
+body { font-family: 'Assistant', sans-serif; margin: 0; background: var(--bg); user-select: none; }
 .app-wrapper { display: flex; flex-direction: column; height: 100vh; }
 
-.main-header {
-    background: white; padding: 1rem 2rem;
-    display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid #e2e8f0;
+.main-header { 
+    background: white; padding: 10px 20px; display: flex; 
+    justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-.controls-bar { display: flex; gap: 20px; align-items: center; }
-.control-group { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 5px 12px; border-radius: 8px; }
-.control-group button { background: white; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer; width: 25px; }
+.grid-controls { display: flex; gap: 15px; }
+.control-group { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 5px 12px; border-radius: 20px; }
 
-.content-grid { display: grid; grid-template-columns: 280px 1fr; flex: 1; overflow: hidden; }
+.main-layout { display: grid; grid-template-columns: 250px 1fr; flex: 1; overflow: hidden; }
+.sidebar { background: white; border-left: 1px solid #e2e8f0; padding: 15px; overflow-y: auto; }
 
-.sidebar { background: white; border-left: 1px solid #e2e8f0; padding: 1rem; overflow-y: auto; }
-
-.classroom-area { padding: 2rem; overflow: auto; display: flex; flex-direction: column; align-items: center; }
-
-.teacher-desk { 
-    width: 300px; height: 40px; background: #334155; color: white; 
-    display: flex; align-items: center; justify-content: center; 
-    border-radius: 0 0 20px 20px; margin-bottom: 40px; font-size: 0.8rem;
-}
-
-.classroom-grid {
-    display: grid;
-    gap: 15px;
-    margin: 0 auto;
-}
+.grid-container { display: grid; gap: 12px; padding: 30px; justify-content: center; }
 
 .desk {
-    width: 90px; height: 75px; background: white;
-    border: 2px dashed #cbd5e1; border-radius: 10px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    cursor: pointer; transition: 0.2s; font-size: 0.85rem; text-align: center; padding: 5px;
+    width: 90px; height: 75px; background: white; border: 2px dashed #cbd5e1;
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; font-weight: 600; text-align: center; font-size: 0.85rem;
 }
 
-.desk.occupied { border: 2px solid var(--primary); background: #f5f7ff; border-style: solid; }
-.desk.conflict { border-color: var(--accent-red); background: #fef2f2; }
-.desk.match { border-color: var(--accent-green); background: #f0fdf4; }
+.desk.occupied { border-style: solid; border-color: var(--primary); background: #f5f7ff; }
+.desk.locked { border-color: #64748b; background: #f1f5f9; }
+.desk.locked::after { content: '🔒'; position: absolute; top: 2px; right: 2px; font-size: 0.7rem; }
+.desk.match { border-color: var(--success); background: #f0fdf4; }
+.desk.conflict { border-color: var(--danger); background: #fef2f2; }
 
-.student-pill {
-    padding: 10px; background: white; border: 1px solid #e2e8f0;
-    border-radius: 8px; margin-bottom: 8px; cursor: grab; font-weight: 600;
+/* מודאל עריכה */
+.modal { 
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;
 }
-.student-pill:hover { border-color: var(--primary); transform: translateX(-5px); }
+.modal-content { background: white; padding: 25px; border-radius: 20px; width: 280px; text-align: center; }
+.modal-content input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; }
 
-.btn-primary { background: var(--primary); color: white; padding: 8px 20px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; }
+.btn { padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-outline { background: #f1f5f9; color: #475569; }
+.btn-sm { width: 24px; height: 24px; border-radius: 50%; border: none; cursor: pointer; }
+
+@media print { .sidebar, .main-header { display: none; } .main-layout { display: block; } }
