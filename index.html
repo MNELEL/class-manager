@@ -2,50 +2,64 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת סידור כיתה</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ClassManager Pro</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#4f46e5">
 </head>
 <body>
     <div class="app-wrapper">
         <header class="main-header">
             <div class="logo-area">
-                <div class="icon">📋</div>
-                <h1>מערכת <span>סידור כיתה</span></h1>
+                <h1>Class<span>Manager</span></h1>
             </div>
-            <div class="controls-bar">
+            <div class="grid-controls">
                 <div class="control-group">
-                    <label>טורים:</label>
-                    <button onclick="updateGrid('cols', -1)">-</button>
-                    <span id="colCount">10</span>
-                    <button onclick="updateGrid('cols', 1)">+</button>
+                    <span>טורים: <b id="displayCols">10</b></span>
+                    <button class="btn-sm" onclick="changeGrid('cols', 1)">+</button>
+                    <button class="btn-sm" onclick="changeGrid('cols', -1)">-</button>
                 </div>
                 <div class="control-group">
-                    <label>שורות:</label>
-                    <button onclick="updateGrid('rows', -1)">-</button>
-                    <span id="rowCount">4</span>
-                    <button onclick="updateGrid('rows', 1)">+</button>
+                    <span>שורות: <b id="displayRows">4</b></span>
+                    <button class="btn-sm" onclick="changeGrid('rows', 1)">+</button>
+                    <button class="btn-sm" onclick="changeGrid('rows', -1)">-</button>
                 </div>
-                <button id="autoSortBtn" class="btn btn-primary" onclick="runAutoSeating()">🚀 סידור חכם</button>
+            </div>
+            <div class="main-actions">
+                <button class="btn btn-primary" onclick="runSmartSort()">🪄 סידור חכם</button>
+                <button class="btn btn-outline" onclick="window.print()">🖨 PDF</button>
             </div>
         </header>
 
-        <main class="content-grid">
+        <main class="main-layout">
             <aside class="sidebar">
-                <div class="sidebar-header">
-                    <h3>תלמידים במאגר</h3>
-                    <span id="studentCount" class="badge">0</span>
+                <div class="sidebar-top">
+                    <h3>תלמידים</h3>
+                    <label class="btn-import">📥 ייבוא <input type="file" hidden onchange="importData(event)"></label>
                 </div>
                 <div id="studentPool" class="pool-container"></div>
             </aside>
 
             <section class="classroom-area">
-                <div class="teacher-desk shadow-sm">לוח הכיתה / קדימה</div>
-                <div id="classroomGrid" class="classroom-grid"></div>
+                <div class="teacher-desk">לוח הכיתה / קדימה</div>
+                <div id="gridContainer" class="grid-container"></div>
             </section>
         </main>
+
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <h3>עריכת תלמיד</h3>
+                <input type="text" id="editNameInput">
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="saveQuickEdit()">שמור</button>
+                    <button class="btn btn-outline" onclick="closeModal()">ביטול</button>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
 </html>
+
