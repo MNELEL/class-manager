@@ -1,39 +1,9 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <link rel="stylesheet" href="style.css">
-    <title>מנהל כיתה ה1</title>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="logo">ClassManager <span>H1</span></div>
-        <div class="actions">
-            <button onclick="autoLayout()">🪄 סידור אוטומטי</button>
-            <button onclick="exportMap()">📋 ייצא תמונה</button>
-        </div>
-    </nav>
-
-    <div class="app-container">
-        <aside class="sidebar">
-            <h3>תלמידים (32)</h3>
-            <div id="student-list"></div>
-        </aside>
-        
-        <main class="workspace">
-            <div class="teacher-area">לוח הכיתה</div>
-            <div id="grid-container" class="classroom-grid"></div>
-        </main>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מנהל כיתה חכם - ה'1</title>
+    <title>מערכת סידור כיתה</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
@@ -41,26 +11,37 @@
     <div class="app-wrapper">
         <header class="main-header">
             <div class="logo-area">
-                <div class="icon">🎓</div>
-                <h1>מערכת הושבה <span>ה'1</span></h1>
+                <div class="icon">📋</div>
+                <h1>מערכת <span>סידור כיתה</span></h1>
             </div>
-            <div class="toolbar">
-                <button id="autoSortBtn" class="btn btn-primary">🚀 סידור חכם</button>
-                <button id="resetBtn" class="btn btn-outline">🧹 נקה כיתה</button>
+            <div class="controls-bar">
+                <div class="control-group">
+                    <label>טורים:</label>
+                    <button onclick="updateGrid('cols', -1)">-</button>
+                    <span id="colCount">10</span>
+                    <button onclick="updateGrid('cols', 1)">+</button>
+                </div>
+                <div class="control-group">
+                    <label>שורות:</label>
+                    <button onclick="updateGrid('rows', -1)">-</button>
+                    <span id="rowCount">4</span>
+                    <button onclick="updateGrid('rows', 1)">+</button>
+                </div>
+                <button id="autoSortBtn" class="btn btn-primary" onclick="runAutoSeating()">🚀 סידור חכם</button>
             </div>
         </header>
 
         <main class="content-grid">
             <aside class="sidebar">
                 <div class="sidebar-header">
-                    <h3>תלמידים להושבה</h3>
+                    <h3>תלמידים במאגר</h3>
                     <span id="studentCount" class="badge">0</span>
                 </div>
                 <div id="studentPool" class="pool-container"></div>
             </aside>
 
             <section class="classroom-area">
-                <div class="teacher-desk">לוח הכיתה / שולחן המלמד</div>
+                <div class="teacher-desk shadow-sm">לוח הכיתה / קדימה</div>
                 <div id="classroomGrid" class="classroom-grid"></div>
             </section>
         </main>
