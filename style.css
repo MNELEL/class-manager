@@ -1,38 +1,43 @@
-:root { --primary: #4f46e5; --bg: #f8fafc; }
+:root { --primary: #4f46e5; --bg: #f1f5f9; --desk: #ffffff; }
+body { font-family: 'Assistant', sans-serif; margin: 0; background: var(--bg); direction: rtl; }
 
-body { font-family: 'Assistant', sans-serif; margin: 0; background: var(--bg); touch-action: manipulation; }
+.app-wrapper { display: flex; flex-direction: column; height: 100vh; }
+.main-header { background: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; }
+.header-right { display: flex; align-items: center; gap: 15px; }
+h1 span { color: var(--primary); }
 
-/* פריסה לטלפון */
-.main-header { display: flex; justify-content: space-between; padding: 10px 15px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.main-layout { display: flex; flex: 1; position: relative; overflow: hidden; }
 
-.main-layout { display: flex; height: calc(100vh - 60px); position: relative; }
-
+/* Sidebar Mobile Ready */
 .sidebar { 
     width: 280px; background: white; position: absolute; right: -300px; top: 0; height: 100%; 
-    z-index: 1000; transition: 0.3s; box-shadow: -2px 0 10px rgba(0,0,0,0.1); 
+    transition: 0.3s; z-index: 100; box-shadow: -2px 0 10px rgba(0,0,0,0.1); padding: 15px;
 }
 .sidebar.active { right: 0; }
+.sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; margin-bottom: 15px; }
 
-.classroom-area { flex: 1; overflow: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+.classroom-area { flex: 1; padding: 20px; overflow: auto; display: flex; flex-direction: column; align-items: center; }
+.grid-toolbar { display: flex; gap: 10px; background: white; padding: 10px; border-radius: 12px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+.tool-group { display: flex; gap: 5px; border-left: 1px solid #eee; padding-left: 10px; }
 
-.grid-container { display: grid; gap: 8px; margin-top: 20px; }
+.grid-container { display: grid; gap: 8px; }
 
-/* מצבי שולחן */
 .desk {
-    width: 75px; height: 65px; background: white; border: 1px solid #cbd5e1; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold;
-    transition: 0.2s;
+    width: 80px; height: 70px; background: var(--desk); border: 1px solid #cbd5e1; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; text-align: center;
 }
-.desk.hidden { opacity: 0.1; border: 1px dashed #ccc; background: transparent; } /* שולחן מחוק */
+.desk.hidden { opacity: 0.1; background: transparent; border: 1px dashed #ccc; }
+.desk.spacer { margin-left: 30px; border-left: 3px solid var(--primary); }
 
-.structure-mode .desk { cursor: no-drop; border: 2px solid var(--primary); }
+.btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-sm { padding: 5px 10px; font-size: 0.75rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; }
+.btn-sm.active { background: var(--primary); color: white; }
 
-.grid-toolbar { display: flex; gap: 10px; background: white; padding: 8px; border-radius: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-
-.btn-sm { padding: 5px 12px; border-radius: 15px; border: 1px solid #ddd; background: white; font-size: 0.75rem; }
-.mode-btn.active { background: var(--primary); color: white; }
+.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000; }
+.modal-content { background:white; padding:20px; border-radius:15px; width:280px; }
 
 @media (min-width: 800px) {
-    .sidebar { position: relative; right: 0; }
-    .btn-icon { display: none; }
+    .sidebar { position: relative; right: 0; box-shadow: none; }
+    .close-btn, .btn-icon { display: none; }
 }
