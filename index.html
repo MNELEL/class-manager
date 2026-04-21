@@ -3,55 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ClassManager Pro</title>
+    <title>ClassManager Pro - Mobile</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <meta name="theme-color" content="#4f46e5">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="app-wrapper">
         <header class="main-header">
-            <div class="logo-area">
-                <h1>Class<span>Manager</span></h1>
-            </div>
-            <div class="grid-controls">
-                <div class="control-group">
-                    <span>טורים: <b id="displayCols">10</b></span>
-                    <button class="btn-sm" onclick="changeGrid('cols', 1)">+</button>
-                    <button class="btn-sm" onclick="changeGrid('cols', -1)">-</button>
-                </div>
-                <div class="control-group">
-                    <span>שורות: <b id="displayRows">4</b></span>
-                    <button class="btn-sm" onclick="changeGrid('rows', 1)">+</button>
-                    <button class="btn-sm" onclick="changeGrid('rows', -1)">-</button>
-                </div>
-            </div>
-            <div class="main-actions">
-                <button class="btn btn-primary" onclick="runSmartSort()">🪄 סידור חכם</button>
-                <button class="btn btn-outline" onclick="window.print()">🖨 PDF</button>
+            <h1>Class<span>Manager</span></h1>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="toggleSidebar()">👤</button>
+                <button class="btn btn-primary" onclick="runSmartSort()">🪄 סדר</button>
             </div>
         </header>
 
         <main class="main-layout">
-            <aside class="sidebar">
-                <div class="sidebar-top">
-                    <h3>תלמידים</h3>
-                    <label class="btn-import">📥 ייבוא <input type="file" hidden onchange="importData(event)"></label>
+            <aside id="sidebar" class="sidebar">
+                <div class="sidebar-header">
+                    <h3>ניהול נתונים</h3>
+                    <button onclick="toggleSidebar()">✖</button>
+                </div>
+                <div class="import-options">
+                    <label class="btn-import">📥 ייבוא (Excel/JSON/Word)
+                        <input type="file" id="fileInput" hidden onchange="handleUniversalImport(event)">
+                    </label>
                 </div>
                 <div id="studentPool" class="pool-container"></div>
             </aside>
 
             <section class="classroom-area">
-                <div class="teacher-desk">לוח הכיתה / קדימה</div>
+                <div class="grid-toolbar">
+                    <button class="btn-sm" onclick="changeGrid('cols', 1)">טור +</button>
+                    <button class="btn-sm" onclick="changeGrid('cols', -1)">טור -</button>
+                    <button id="structureBtn" class="btn-sm mode-btn" onclick="toggleStructureMode()">ערוך מבנה 🛠️</button>
+                </div>
                 <div id="gridContainer" class="grid-container"></div>
             </section>
         </main>
 
         <div id="editModal" class="modal">
             <div class="modal-content">
-                <h3>עריכת תלמיד</h3>
-                <input type="text" id="editNameInput">
+                <input type="text" id="editNameInput" placeholder="שם התלמיד">
                 <div class="modal-actions">
                     <button class="btn btn-primary" onclick="saveQuickEdit()">שמור</button>
                     <button class="btn btn-outline" onclick="closeModal()">ביטול</button>
@@ -62,4 +56,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
