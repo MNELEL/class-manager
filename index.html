@@ -3,41 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ClassManager Pro - Mobile</title>
+    <title>ניהול כיתה - גרסה מעודכנת</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="app-wrapper">
         <header class="main-header">
-            <h1>Class<span>Manager</span></h1>
-            <div class="header-actions">
-                <button class="btn-icon" onclick="toggleSidebar()">👤</button>
-                <button class="btn btn-primary" onclick="runSmartSort()">🪄 סדר</button>
+            <div class="header-right">
+                <button class="btn-icon" onclick="toggleSidebar()">☰</button>
+                <h1>Class<span>Manager</span></h1>
+            </div>
+            <div class="header-left">
+                <button class="btn btn-primary" onclick="runSmartSort()">🪄 סידור</button>
             </div>
         </header>
 
         <main class="main-layout">
             <aside id="sidebar" class="sidebar">
                 <div class="sidebar-header">
-                    <h3>ניהול נתונים</h3>
-                    <button onclick="toggleSidebar()">✖</button>
+                    <h3>תפריט ניהול</h3>
+                    <button class="close-btn" onclick="toggleSidebar()">✕</button>
                 </div>
-                <div class="import-options">
-                    <label class="btn-import">📥 ייבוא (Excel/JSON/Word)
+                <div class="import-area">
+                    <label class="btn-import">
+                        📥 ייבוא שמות (JSON/Excel)
                         <input type="file" id="fileInput" hidden onchange="handleUniversalImport(event)">
                     </label>
                 </div>
-                <div id="studentPool" class="pool-container"></div>
+                <div id="studentPool" class="pool-container">
+                    <p class="empty-msg">רשימת התלמידים תופיע כאן לאחר הייבוא</p>
+                </div>
             </aside>
 
             <section class="classroom-area">
                 <div class="grid-toolbar">
-                    <button class="btn-sm" onclick="changeGrid('cols', 1)">טור +</button>
-                    <button class="btn-sm" onclick="changeGrid('cols', -1)">טור -</button>
-                    <button id="structureBtn" class="btn-sm mode-btn" onclick="toggleStructureMode()">ערוך מבנה 🛠️</button>
+                    <div class="tool-group">
+                        <button class="btn-sm" onclick="changeGrid('cols', 1)">טור +</button>
+                        <button class="btn-sm" onclick="changeGrid('cols', -1)">טור -</button>
+                    </div>
+                    <div class="tool-group">
+                        <button id="structureBtn" class="btn-sm" onclick="setMode('structure')">מחיקת שולחן 🛠️</button>
+                        <button id="gapBtn" class="btn-sm" onclick="setMode('gap')">רווחים ↔️</button>
+                    </div>
                 </div>
                 <div id="gridContainer" class="grid-container"></div>
             </section>
@@ -45,12 +55,11 @@
 
         <div id="editModal" class="modal">
             <div class="modal-content">
-                <input type="text" id="editNameInput" placeholder="שם התלמיד">
+                <h3>עריכת תלמיד</h3>
+                <input type="text" id="editNameInput">
                 <div class="modal-actions">
                     <button class="btn btn-primary" onclick="saveQuickEdit()">שמור</button>
                     <button class="btn btn-outline" onclick="closeModal()">ביטול</button>
-              <button class="btn-sm" onclick="toggleGapMode()">רווחים ↔️</button>
-
                 </div>
             </div>
         </div>
