@@ -2,48 +2,51 @@ let state = {
     cols: 6, rows: 6,
     students: [],
     grid: Array(100).fill(null),
-    hiddenDesks: new Set(), // שולחנות מחוקים
-    editMode: 'normal' // normal או structure
+    hiddenDesks: new Set(),
+    columnGaps: new Set(),
+    editMode: 'normal'
 };
 
-// פתיחה/סגירה של תפריט בטלפון
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('active');
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+
+function setMode(mode) {
+    state.editMode = state.editMode === mode ? 'normal' : mode;
+    document.querySelectorAll('.btn-sm').forEach(b => b.classList.remove('active'));
+    if (state.editMode !== 'normal') document.getElementById(mode + 'Btn').classList.add('active');
 }
 
-// מצב עריכת מבנה (מחיקת שולחנות)
-function toggleStructureMode() {
-    state.editMode = state.editMode === 'normal' ? 'structure' : 'normal';
-    document.body.classList.toggle('structure-mode');
-    document.getElementById('structureBtn').classList.toggle('active');
-}
-
-// ייבוא אוניברסלי (Excel / JSON)
 async function handleUniversalImport(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-        const data = await file.arrayBuffer();
-        const workbook = XLSX.read(data);
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet, {header: 1});
-        state.students = rows.flat().filter(n => n).map((n, i) => ({id: i, name: n.toString()}));
-    } else {
-        const text = await file.text();
-        state.students = JSON.parse(text).students || JSON.parse(text);
+    try {
+        if (file.name.endsWith('.json')) {
+            const text = await file.text();
+            const data = JSON.parse(text);
+            // מותאם בדיוק למבנה ששלחת: { "teacher": "...", "students": [...] }
+            state.students = data.students || data;
+        } else {
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data);
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet, {header: 1});
+            state.students = rows.flat().filter(n => n).map((n, i) => ({id: i+1, name: n.toString()}));
+        }
+        alert("נטענו " + state.students.length + " תלמידים");
+        render();
+    } catch (err) {
+        alert("שגיאה בטעינת הקובץ");
     }
-    render();
 }
 
 function handleDeskClick(idx) {
     if (state.editMode === 'structure') {
-        if (state.hiddenDesks.has(idx)) state.hiddenDesks.delete(idx);
-        else state.hiddenDesks.add(idx);
-        render();
-    } else {
-        // כאן תבוא לוגיקת העריכה הידנית או הנעילה שדיברנו עליה
+        state.hiddenDesks.has(idx) ? state.hiddenDesks.delete(idx) : state.hiddenDesks.add(idx);
+    } else if (state.editMode === 'gap') {
+        const col = idx % state.cols;
+        state.columnGaps.has(col) ? state.columnGaps.delete(col) : state.columnGaps.add(col);
     }
+    render();
 }
 
 function render() {
@@ -53,16 +56,15 @@ function render() {
 
     for (let i = 0; i < state.cols * state.rows; i++) {
         const desk = document.createElement('div');
-        desk.className = `desk ${state.hiddenDesks.has(i) ? 'hidden' : ''}`;
+        const col = i % state.cols;
+        desk.className = `desk ${state.hiddenDesks.has(i) ? 'hidden' : ''} ${state.columnGaps.has(col) ? 'spacer' : ''}`;
         
         const sId = state.grid[i];
         if (sId && !state.hiddenDesks.has(i)) {
             const s = state.students.find(x => x.id == sId);
             desk.innerText = s ? s.name : "";
-        } else if (!state.hiddenDesks.has(i)) {
-            desk.innerText = "";
         }
-
+        
         desk.onclick = () => handleDeskClick(i);
         container.appendChild(desk);
     }
@@ -71,48 +73,18 @@ function render() {
 function changeGrid(type, val) {
     if (type === 'cols') state.cols = Math.max(1, state.cols + val);
     render();
-}// הוסף למשתנה ה-state בראש הקובץ
-state.columnGaps = new Set(); // שומר את מספרי הטורים שרוצים רווח אחריהם
-state.editMode = 'normal';
-
-function toggleGapMode() {
-    state.editMode = state.editMode === 'gap' ? 'normal' : 'gap';
-    alert(state.editMode === 'gap' ? "לחץ על שולחן כדי להוסיף רווח משמאלו" : "חזרת למצב רגיל");
 }
 
-// עדכון פונקציית handleDeskClick
-function handleDeskClick(idx) {
-    if (state.editMode === 'structure') {
-        state.hiddenDesks.has(idx) ? state.hiddenDesks.delete(idx) : state.hiddenDesks.add(idx);
-    } 
-    else if (state.editMode === 'gap') {
-        const colIndex = idx % state.cols;
-        state.columnGaps.has(colIndex) ? state.columnGaps.delete(colIndex) : state.columnGaps.add(colIndex);
+function runSmartSort() {
+    let unplaced = [...state.students];
+    state.grid.fill(null);
+    for (let i = 0; i < state.cols * state.rows; i++) {
+        if (!state.hiddenDesks.has(i) && unplaced.length > 0) {
+            state.grid[i] = unplaced.shift().id;
+        }
     }
     render();
 }
 
-// עדכון פונקציית ה-render (החלק שיוצר את ה-Desk)
-function render() {
-    const container = document.getElementById('gridContainer');
-    container.style.gridTemplateColumns = `repeat(${state.cols}, 1fr)`;
-    container.innerHTML = '';
-
-    for (let i = 0; i < state.cols * state.rows; i++) {
-        const desk = document.createElement('div');
-        const colIndex = i % state.cols;
-        
-        // הוספת המעבר אם הטור הזה נבחר
-        let className = `desk ${state.hiddenDesks.has(i) ? 'hidden' : ''}`;
-        if (state.columnGaps.has(colIndex)) {
-            className += ' column-spacer';
-        }
-        desk.className = className;
-
-        desk.onclick = () => handleDeskClick(i);
-        container.appendChild(desk);
-    }
-}
-
-
 render();
+
