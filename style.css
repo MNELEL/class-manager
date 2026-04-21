@@ -1,43 +1,277 @@
-:root { --primary: #4f46e5; --bg: #f1f5f9; --desk: #ffffff; }
-body { font-family: 'Assistant', sans-serif; margin: 0; background: var(--bg); direction: rtl; }
-
-.app-wrapper { display: flex; flex-direction: column; height: 100vh; }
-.main-header { background: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; }
-.header-right { display: flex; align-items: center; gap: 15px; }
-h1 span { color: var(--primary); }
-
-.main-layout { display: flex; flex: 1; position: relative; overflow: hidden; }
-
-/* Sidebar Mobile Ready */
-.sidebar { 
-    width: 280px; background: white; position: absolute; right: -300px; top: 0; height: 100%; 
-    transition: 0.3s; z-index: 100; box-shadow: -2px 0 10px rgba(0,0,0,0.1); padding: 15px;
+/* משתני מערכת - מבוסס על פלטת הצבעים של הקבצים שהעלית */
+:root {
+    --primary: #4f46e5;
+    --primary-dark: #3730a3;
+    --primary-light: #eef2ff;
+    --success: #10b981;
+    --danger: #ef4444;
+    --bg-main: #f8fafc;
+    --desk-bg: #ffffff;
+    --desk-border: #e2e8f0;
+    --text-main: #1e293b;
+    --sidebar-width: 300px;
 }
-.sidebar.active { right: 0; }
-.sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; margin-bottom: 15px; }
 
-.classroom-area { flex: 1; padding: 20px; overflow: auto; display: flex; flex-direction: column; align-items: center; }
-.grid-toolbar { display: flex; gap: 10px; background: white; padding: 10px; border-radius: 12px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
-.tool-group { display: flex; gap: 5px; border-left: 1px solid #eee; padding-left: 10px; }
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
 
-.grid-container { display: grid; gap: 8px; }
+body {
+    font-family: 'Assistant', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    margin: 0;
+    direction: rtl;
+    overflow-x: hidden;
+}
+
+/* מבנה כללי */
+.app-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Header משופר */
+.main-header {
+    background: white;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    z-index: 50;
+}
+
+.main-header h1 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.main-header h1 span {
+    color: var(--primary);
+    font-weight: 300;
+}
+
+/* סרגל צד - Mobile First */
+.sidebar {
+    width: var(--sidebar-width);
+    background: white;
+    border-left: 1px solid #e2e8f0;
+    position: fixed;
+    right: calc(-1 * var(--sidebar-width));
+    top: 0;
+    height: 100%;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    padding: 1.5rem;
+    box-shadow: -4px 0 15px rgba(0,0,0,0.05);
+    overflow-y: auto;
+}
+
+.sidebar.active {
+    transform: translateX(calc(-1 * var(--sidebar-width)));
+}
+
+/* אזור הכיתה */
+.classroom-area {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.teacher-view {
+    background: var(--primary);
+    color: white;
+    width: 240px;
+    padding: 10px;
+    text-align: center;
+    border-radius: 0 0 25px 25px;
+    font-weight: bold;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* הגריד והשולחנות */
+.grid-container {
+    display: grid;
+    gap: 12px;
+    padding-bottom: 100px; /* מקום לגלילה בנייד */
+}
 
 .desk {
-    width: 80px; height: 70px; background: var(--desk); border: 1px solid #cbd5e1; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; text-align: center;
+    width: 85px;
+    height: 75px;
+    background: var(--desk-bg);
+    border: 2px solid var(--desk-border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    padding: 5px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
-.desk.hidden { opacity: 0.1; background: transparent; border: 1px dashed #ccc; }
-.desk.spacer { margin-left: 30px; border-left: 3px solid var(--primary); }
 
-.btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+.desk:active {
+    transform: scale(0.95);
+}
+
+/* מצבי שולחן מיוחדים */
+.desk.hidden {
+    opacity: 0.15;
+    background: transparent;
+    border: 2px dashed #94a3b8;
+}
+
+.desk.locked {
+    border-color: var(--primary);
+    background-color: var(--primary-light);
+}
+
+.desk.locked::before {
+    content: '🔒';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 0.7rem;
+    background: white;
+    border-radius: 50%;
+    padding: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* יצירת מעברים (Gaps) */
+.desk.spacer {
+    margin-left: 35px;
+}
+
+/* טולבר כפתורי מצב */
+.mode-toolbar {
+    display: flex;
+    gap: 8px;
+    background: white;
+    padding: 8px;
+    border-radius: 50px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.mode-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: #64748b;
+    transition: 0.2s;
+}
+
+.mode-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* כפתורים וכלים */
+.btn {
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
 .btn-primary { background: var(--primary); color: white; }
-.btn-sm { padding: 5px 10px; font-size: 0.75rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; }
-.btn-sm.active { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
 
-.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000; }
-.modal-content { background:white; padding:20px; border-radius:15px; width:280px; }
+.btn-full {
+    width: 100%;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    text-align: right;
+    cursor: pointer;
+}
 
-@media (min-width: 800px) {
-    .sidebar { position: relative; right: 0; box-shadow: none; }
-    .close-btn, .btn-icon { display: none; }
+/* מאגר תלמידים */
+.pool-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e1;
+    min-height: 80px;
+}
+
+.pool-item {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* מודאל */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    width: 100%;
+    max-width: 340px;
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* התאמות למסכים גדולים */
+@media (min-width: 1024px) {
+    .sidebar {
+        position: relative;
+        right: 0;
+        transform: none !important;
+        box-shadow: none;
+    }
+    .close-btn { display: none; }
+    .btn-icon { display: none; }
+}
+
+/* הגדרות להדפסה - חשוב מאוד! */
+@media print {
+    .main-header, .sidebar, .mode-toolbar, .modal {
+        display: none !important;
+    }
+    body { background: white; }
+    .classroom-area { padding: 0; }
+    .desk { border: 1px solid #000; }
+    .desk.hidden { visibility: hidden; }
 }
