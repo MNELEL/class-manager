@@ -1,46 +1,38 @@
-:root {
-    --primary: #4f46e5; --bg: #f8fafc; --success: #22c55e; --danger: #ef4444;
+:root { --primary: #4f46e5; --bg: #f8fafc; }
+
+body { font-family: 'Assistant', sans-serif; margin: 0; background: var(--bg); touch-action: manipulation; }
+
+/* פריסה לטלפון */
+.main-header { display: flex; justify-content: space-between; padding: 10px 15px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+.main-layout { display: flex; height: calc(100vh - 60px); position: relative; }
+
+.sidebar { 
+    width: 280px; background: white; position: absolute; right: -300px; top: 0; height: 100%; 
+    z-index: 1000; transition: 0.3s; box-shadow: -2px 0 10px rgba(0,0,0,0.1); 
 }
+.sidebar.active { right: 0; }
 
-body { font-family: 'Assistant', sans-serif; margin: 0; background: var(--bg); user-select: none; }
-.app-wrapper { display: flex; flex-direction: column; height: 100vh; }
+.classroom-area { flex: 1; overflow: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; }
 
-.main-header { 
-    background: white; padding: 10px 20px; display: flex; 
-    justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
+.grid-container { display: grid; gap: 8px; margin-top: 20px; }
 
-.grid-controls { display: flex; gap: 15px; }
-.control-group { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 5px 12px; border-radius: 20px; }
-
-.main-layout { display: grid; grid-template-columns: 250px 1fr; flex: 1; overflow: hidden; }
-.sidebar { background: white; border-left: 1px solid #e2e8f0; padding: 15px; overflow-y: auto; }
-
-.grid-container { display: grid; gap: 12px; padding: 30px; justify-content: center; }
-
+/* מצבי שולחן */
 .desk {
-    width: 90px; height: 75px; background: white; border: 2px dashed #cbd5e1;
-    border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; position: relative; font-weight: 600; text-align: center; font-size: 0.85rem;
+    width: 75px; height: 65px; background: white; border: 1px solid #cbd5e1; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold;
+    transition: 0.2s;
 }
+.desk.hidden { opacity: 0.1; border: 1px dashed #ccc; background: transparent; } /* שולחן מחוק */
 
-.desk.occupied { border-style: solid; border-color: var(--primary); background: #f5f7ff; }
-.desk.locked { border-color: #64748b; background: #f1f5f9; }
-.desk.locked::after { content: '🔒'; position: absolute; top: 2px; right: 2px; font-size: 0.7rem; }
-.desk.match { border-color: var(--success); background: #f0fdf4; }
-.desk.conflict { border-color: var(--danger); background: #fef2f2; }
+.structure-mode .desk { cursor: no-drop; border: 2px solid var(--primary); }
 
-/* מודאל עריכה */
-.modal { 
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;
+.grid-toolbar { display: flex; gap: 10px; background: white; padding: 8px; border-radius: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+.btn-sm { padding: 5px 12px; border-radius: 15px; border: 1px solid #ddd; background: white; font-size: 0.75rem; }
+.mode-btn.active { background: var(--primary); color: white; }
+
+@media (min-width: 800px) {
+    .sidebar { position: relative; right: 0; }
+    .btn-icon { display: none; }
 }
-.modal-content { background: white; padding: 25px; border-radius: 20px; width: 280px; text-align: center; }
-.modal-content input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; }
-
-.btn { padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; }
-.btn-primary { background: var(--primary); color: white; }
-.btn-outline { background: #f1f5f9; color: #475569; }
-.btn-sm { width: 24px; height: 24px; border-radius: 50%; border: none; cursor: pointer; }
-
-@media print { .sidebar, .main-header { display: none; } .main-layout { display: block; } }
