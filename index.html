@@ -28,3 +28,43 @@
     <script src="script.js"></script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מנהל כיתה חכם - ה'1</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-wrapper">
+        <header class="main-header">
+            <div class="logo-area">
+                <div class="icon">🎓</div>
+                <h1>מערכת הושבה <span>ה'1</span></h1>
+            </div>
+            <div class="toolbar">
+                <button id="autoSortBtn" class="btn btn-primary">🚀 סידור חכם</button>
+                <button id="resetBtn" class="btn btn-outline">🧹 נקה כיתה</button>
+            </div>
+        </header>
+
+        <main class="content-grid">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h3>תלמידים להושבה</h3>
+                    <span id="studentCount" class="badge">0</span>
+                </div>
+                <div id="studentPool" class="pool-container"></div>
+            </aside>
+
+            <section class="classroom-area">
+                <div class="teacher-desk">לוח הכיתה / שולחן המלמד</div>
+                <div id="classroomGrid" class="classroom-grid"></div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
