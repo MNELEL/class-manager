@@ -1,16 +1,24 @@
 {
-  "name": "ClassManager",
-  "short_name": "ClassManager",
-  "start_url": "index.html",
-  "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#4f46e5",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/192/192431.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+  "background_color": "#ffffff",
+  "dir": "auto",
+  "display": "fullscreen",
+  "name": "polite-crisp-709c99.netlify",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "polite-crisp-709c99.netlify",
+  "start_url": "/https://polite-crisp-709c99.netlify.app/",
+  "theme_color": "#ffffff",
+  "categories": [
+    "books",
+    "education",
+    "fitness",
+    "kids",
+    "personalization",
+    "social"
+  ],
+  "lang": "he",
+  "display_override": [
+    "fullscreen",
+    "window-controls-overlay"
   ]
 }
-
