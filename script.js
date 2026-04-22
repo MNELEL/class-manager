@@ -301,21 +301,46 @@ async function handleStudentsImport(e) {
     const file = e.target.files[0]; if (!file) return; e.target.value='';
     try {
         let students;
+        const text = await file.text();
+
         if (file.name.endsWith('.json')) {
-            const data = JSON.parse(await file.text());
-            students = Array.isArray(data) && typeof data[0]==='string'
-                ? data.map((n,i)=>({id:i+1,name:n,forbidden:[],preferred:[]}))
-                : data.map(s=>({id:s.id??Math.random(),name:s.name,forbidden:s.forbidden||[],preferred:s.preferred||[]}));
-        } else {
+            // נסה לפרסר JSON
+            const data = JSON.parse(text);
+
+            if (Array.isArray(data)) {
+                if (typeof data[0] === 'string') {
+                    // פורמט: ["שם1", "שם2", ...]
+                    students = data.map((n,i) => ({id:i+1, name:n, forbidden:[], preferred:[]}));
+                } else {
+                    // פורמט: [{id, name, ...}, ...]
+                    students = data.map(s => ({id:s.id??Math.random(), name:s.name, forbidden:s.forbidden||[], preferred:s.preferred||[]}));
+                }
+            } else if (data.students && Array.isArray(data.students)) {
+                // פורמט: { teacher: "...", students: [{id, name}, ...] }  ← הקובץ שלך!
+                students = data.students.map(s => ({id:s.id, name:s.name, forbidden:s.forbidden||[], preferred:s.preferred||[]}));
+            } else {
+                throw new Error('מבנה JSON לא מזוהה');
+            }
+
+        } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+            // Excel
             const buf = await file.arrayBuffer(); const wb = XLSX.read(buf);
             const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1});
-            students = rows.flat().filter(n=>n&&typeof n==='string'&&n.trim()).map((n,i)=>({id:i+1,name:n.trim(),forbidden:[],preferred:[]}));
+            students = rows.flat().filter(n=>n&&String(n).trim()).map((n,i)=>({id:i+1, name:String(n).trim(), forbidden:[], preferred:[]}));
+
+        } else {
+            // טקסט רגיל — שורה = שם (כמו קובץ nomen.json שלך)
+            students = text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean)
+                .map((n,i) => ({id:i+1, name:n, forbidden:[], preferred:[]}));
         }
+
+        if (!students || !students.length) { showToast('❌ לא נמצאו תלמידים בקובץ', 'error'); return; }
+
         pushHistory();
         state.students = students;
         state.grid = Array(totalCells()).fill(null);
         showToast(`✅ נטענו ${state.students.length} תלמידים`); render(false); saveToStorage();
-    } catch(err) { showToast('❌ שגיאה בטעינת הקובץ','error'); }
+    } catch(err) { showToast('❌ שגיאה: ' + err.message, 'error'); console.error(err); }
 }
 
 async function handleConstraintsImport(e) {
