@@ -1,4 +1,4 @@
-# 🎓 ClassManager H1 - מערכת הושבה חכמה
+# 🎓 Class Manager- מערכת הושבה חכמה
 
 **ניהול פדגוגי מתקדם לסידור מקומות ישיבה בכיתה **
 
@@ -36,3 +36,36 @@
 
 ## ✍️ פיתוח
 הפרויקט פותח ככלי עזר למלמד במטרה להפוך את תהליך סידור הכיתה למהיר, נעים ומבוסס נתונים.
+
+class-manager/
+├── index.html         ✅
+├── script.js          ✅ (1200+ שורות)
+├── style.css          ✅
+├── sw.js              ✅ (Service Worker)
+├── manifest.json      ✅
+├── README.md          ✅
+├── assets/icons/
+│   ├── ClassManager.svg   ✅
+│   ├── icon-192.png       ⏳ (צריך המרה)
+│   ├── icon-152.png       ⏳
+│   └── icon-512.png       ⏳
+└── .github/workflows/ (אופציונלי)
+## ClassManager H1 - Smart Classroom Seating Arrangement System
+
+This repository is a **classroom management tool** designed to help teachers organize student seating in an optimal way. It's written in Hebrew (עברית) and built as a helper for managing a 5th-grade classroom (Class H1).
+
+### Key Features:
+
+- **Interactive Drag & Drop Interface**: Teachers can easily drag students from a pool/list directly to desired seats
+- **Smart Sorting Algorithm**: A "smart arrangement" button automatically suggests optimal student placements based on preferences
+- **Social Conflict Detection**: The system highlights in red problematic seating arrangements (based on student preferences) and in green positive placements
+- **Realistic Classroom Layout**: Visualizes the actual classroom structure with 4 tables on the sides and 2 in the center
+- **Missing Student Tracking**: Maintains an updated list of students not yet seated to ensure no one is forgotten
+
+### Technology Stack:
+
+The project uses vanilla **JavaScript (40.2%)**, **HTML (32.3%)**, and **CSS (27.5%)** with Tailwind CSS for styling, and is deployed via GitHub Pages.
+
+### Purpose:
+
+This is a pedagogical tool built to make the classroom seating arrangement process fast, user-friendly, and data-driven for the teacher.
