@@ -6,188 +6,340 @@
     <title>ClassManager Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#6366f1">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="ClassManager">
     <link rel="apple-touch-icon" href="icons/icon-152.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    
-    <!-- Vercel Web Analytics -->
-    <script>
-      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-    </script>
+    <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
     <script defer src="/_vercel/insights/script.js"></script>
-    
     <style>
-        body { font-family: 'Assistant', sans-serif; background-color: #f1f5f9; }
-
-        .desk {
-            width: 85px; height: 72px; background: white; border: 2px solid #e2e8f0;
-            border-radius: 10px; display: flex; align-items: center; justify-content: center;
-            position: relative; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-            font-size: 0.8rem; font-weight: 600; text-align: center; padding: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06); user-select: none;
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4338ca;
+            --primary-light: #eef2ff;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --surface: #ffffff;
+            --bg: #f0f2ff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-muted: #64748b;
         }
-        .desk:active { transform: scale(0.93); }
-        .desk.hidden-desk { opacity: 0.1; background: transparent !important; border: 2px dashed #cbd5e1 !important; box-shadow: none; }
-        .desk.locked { border-color: #4f46e5; background-color: #eef2ff; }
-        .desk.locked::after { content: '🔒'; position: absolute; top: 2px; right: 2px; font-size: 0.6rem; }
-        .desk.conflict { border-color: #ef4444; background-color: #fef2f2; }
-        .desk.preferred { border-color: #10b981; background-color: #f0fdf4; }
-        .desk.drag-over { border: 2px dashed #4f46e5 !important; background-color: #eef2ff !important; transform: scale(1.05); }
 
-        .grid-ctrl-btn {
-            width: 22px; height: 22px; background: white; border: 1.5px solid #cbd5e1;
-            border-radius: 50%; font-size: 0.75rem; font-weight: 800; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; color: #64748b;
-            transition: 0.15s; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Assistant', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0; overflow-x: hidden;
         }
-        .grid-ctrl-btn:hover { background: #4f46e5; color: white; border-color: #4f46e5; }
 
-        .mode-btn { transition: 0.15s; }
-        .mode-btn.active { background: #4f46e5 !important; color: white !important; box-shadow: 0 2px 8px rgba(79,70,229,0.35); }
+        /* ── HEADER ── */
+        .app-header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0 16px;
+            height: 58px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 40;
+            box-shadow: 0 1px 12px rgba(99,102,241,0.08);
+        }
+        .header-logo {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .header-logo img { width: 32px; height: 32px; border-radius: 8px; }
+        .header-logo-text { font-size: 1.1rem; font-weight: 900; color: var(--primary); letter-spacing: -0.5px; }
+        .header-logo-text span { font-weight: 300; color: #94a3b8; font-size: 0.85rem; }
+        .header-actions { display: flex; align-items: center; gap: 6px; }
 
-        .sidebar { transition: transform 0.3s ease; }
+        /* ── BUTTONS ── */
+        .btn { padding: 8px 16px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: all 0.15s; font-family: 'Assistant', sans-serif; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(99,102,241,0.3); }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+        .btn-primary:active { transform: scale(0.96); }
+        .btn-success { background: var(--success); color: white; box-shadow: 0 2px 8px rgba(16,185,129,0.3); }
+        .btn-ghost { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); }
+        .btn-ghost:hover { background: var(--bg); color: var(--text); }
+        .btn-icon { width: 36px; height: 36px; padding: 0; border-radius: 10px; background: white; border: 1.5px solid var(--border); color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.15s; font-size: 1rem; }
+        .btn-icon:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+        .btn-icon:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 280px; background: white; border-left: 1px solid var(--border);
+            overflow-y: auto; flex-shrink: 0;
+            display: flex; flex-direction: column;
+        }
+        .sidebar-section { padding: 16px; border-bottom: 1px solid #f1f5f9; }
+        .sidebar-section-title {
+            font-size: 0.68rem; font-weight: 800; color: #94a3b8;
+            text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+        }
+
         @media (max-width: 1023px) {
-            .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100%; z-index: 50; width: 82%; max-width: 320px; }
-            .sidebar.active { transform: translateX(0); }
+            .sidebar {
+                position: fixed; right: calc(-100%); top: 58px; height: calc(100% - 58px);
+                z-index: 30; transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+                box-shadow: -8px 0 32px rgba(0,0,0,0.12);
+                width: min(300px, 90vw);
+            }
+            .sidebar.active { right: 0; }
         }
+
+        /* ── CLASSROOM ── */
+        .classroom-main { flex: 1; overflow: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; }
 
         .teacher-desk {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white;
-            border-radius: 0 0 20px 20px; padding: 10px 20px; width: 220px;
-            margin: 0 auto 28px; text-align: center; font-weight: bold; font-size: 0.9rem;
-            box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white; border-radius: 0 0 24px 24px;
+            padding: 10px 32px; width: 200px; text-align: center;
+            font-weight: 800; font-size: 0.85rem; margin: 0 auto 32px;
+            box-shadow: 0 8px 24px rgba(99,102,241,0.35);
+            letter-spacing: 0.02em;
         }
 
-        /* Save indicator */
+        /* ── MODE TOOLBAR ── */
+        .mode-toolbar {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 6px; margin-bottom: 20px;
+        }
+        .mode-btn {
+            border: 1.5px solid var(--border); background: white; color: var(--text-muted);
+            padding: 7px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 700;
+            cursor: pointer; transition: all 0.15s; font-family: 'Assistant', sans-serif;
+        }
+        .mode-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+        .mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 2px 8px rgba(99,102,241,0.3); }
+
+        /* ── DESK ── */
+        .desk {
+            width: 86px; height: 74px;
+            background: white; border: 2px solid var(--border); border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s, background 0.15s;
+            padding: 5px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            user-select: none; overflow: hidden;
+        }
+        .desk:hover:not(.hidden-desk) { box-shadow: 0 4px 12px rgba(99,102,241,0.15); border-color: #a5b4fc; transform: translateY(-1px); }
+        .desk:active { transform: scale(0.93); }
+        .desk.hidden-desk { opacity: 0.12; background: transparent !important; border: 2px dashed #cbd5e1 !important; box-shadow: none; pointer-events: auto; }
+        .desk.locked { border-color: var(--primary); background: var(--primary-light); }
+        .desk.locked::after { content: '🔒'; position: absolute; top: 2px; right: 3px; font-size: 0.6rem; }
+        .desk.conflict { border-color: var(--danger); background: #fef2f2; animation: pulse-red 2s infinite; }
+        .desk.preferred { border-color: var(--success); background: #f0fdf4; }
+        .desk.drag-over { border: 2px dashed var(--primary) !important; background: var(--primary-light) !important; transform: scale(1.06); }
+        .desk.drop-target { border: 2px dashed #a5b4fc !important; background: #f5f3ff !important; }
+
+        .desk-name { font-size: 0.78rem; font-weight: 700; text-align: center; line-height: 1.2; color: var(--text); }
+        .desk-badge {
+            font-size: 0.55rem; font-weight: 800; padding: 1px 5px; border-radius: 20px; margin-top: 2px;
+            letter-spacing: 0.02em;
+        }
+        .tall-badge { background: #dbeafe; color: #1d4ed8; }
+        .front-badge { background: #dcfce7; color: #166534; }
+        .back-badge { background: #fef9c3; color: #854d0e; }
+        .corner-badge { background: #fae8ff; color: #7e22ce; }
+
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+            50% { box-shadow: 0 0 0 4px rgba(239,68,68,0.15); }
+        }
+
+        /* ── GRID CONTROL ── */
+        .grid-ctrl-btn {
+            width: 22px; height: 22px; background: white; border: 1.5px solid var(--border);
+            border-radius: 50%; font-size: 0.75rem; font-weight: 800; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; color: var(--text-muted);
+            transition: 0.15s; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+        .grid-ctrl-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* ── POOL ── */
+        .pool-container {
+            min-height: 72px; background: #f8fafc; border-radius: 14px;
+            padding: 10px; border: 2px dashed #e2e8f0; display: flex;
+            flex-wrap: wrap; gap: 6px; transition: border-color 0.15s;
+        }
+        .pool-container.drag-active { border-color: var(--primary); background: var(--primary-light); }
+        .pool-chip {
+            background: white; border: 1.5px solid var(--border); padding: 4px 12px;
+            border-radius: 20px; font-size: 0.75rem; font-weight: 700; cursor: grab;
+            transition: all 0.15s; color: var(--text); user-select: none;
+        }
+        .pool-chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+        .pool-chip.selected { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* ── SATISFACTION BAR ── */
+        .satisfaction-wrap {
+            background: white; border-radius: 14px; padding: 12px 16px;
+            border: 1px solid var(--border); margin-bottom: 0;
+        }
+        .satisfaction-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .satisfaction-title { font-size: 0.72rem; font-weight: 800; color: var(--text-muted); }
+        .satisfaction-track { height: 8px; background: #f1f5f9; border-radius: 100px; overflow: hidden; }
+        #satisfactionBar { height: 100%; border-radius: 100px; transition: width 0.5s ease, background 0.3s; }
+        #satisfactionLabel { font-size: 0.78rem; font-weight: 800; color: var(--text); }
+        #satisfactionDetail { font-size: 0.68rem; color: var(--text-muted); margin-top: 3px; }
+
+        /* ── SAVE INDICATOR ── */
         #saveIndicator {
-            opacity: 0; transition: opacity 0.3s; font-size: 0.7rem; color: #10b981;
+            opacity: 0; transition: opacity 0.3s; font-size: 0.72rem; color: var(--success);
             font-weight: 700; display: flex; align-items: center; gap: 3px;
         }
 
-        /* AI Panel */
+        /* ── MODAL ── */
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(15,23,42,0.55);
+            backdrop-filter: blur(6px); z-index: 50;
+            display: none; align-items: center; justify-content: center; padding: 16px;
+        }
+        .modal-card {
+            background: white; width: 100%; max-width: 380px;
+            border-radius: 24px; box-shadow: 0 32px 64px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 20px 20px 0;
+        }
+        .modal-title { font-size: 1.1rem; font-weight: 900; margin: 0; }
+        .modal-sub { font-size: 0.75rem; color: var(--text-muted); margin: 2px 0 12px; }
+        .modal-label { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block; }
+        .modal-input {
+            width: 100%; border: 2px solid var(--border); border-radius: 12px;
+            padding: 10px 14px; font-size: 0.9rem; outline: none; font-family: 'Assistant', sans-serif;
+            transition: border-color 0.15s;
+        }
+        .modal-input:focus { border-color: var(--primary); }
+        .modal-section { padding: 12px 20px; border-top: 1px solid #f1f5f9; }
+        .modal-section-title { font-size: 0.68rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+        .modal-footer { display: flex; gap: 8px; padding: 12px 20px 20px; }
+
+        /* ── AI PANEL ── */
         #aiPanel {
-            position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(4px);
-            z-index: 60; display: none; align-items: flex-end; justify-content: flex-end; padding: 20px;
+            position: fixed; inset: 0; background: rgba(15,23,42,0.55);
+            backdrop-filter: blur(6px); z-index: 60;
+            display: none; align-items: flex-end; justify-content: flex-end; padding: 16px;
         }
         #aiPanelInner {
-            width: 100%; max-width: 380px; height: 85vh; max-height: 640px;
-            background: white; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            width: 100%; max-width: 380px; height: min(85vh, 640px);
+            background: white; border-radius: 24px;
+            box-shadow: 0 32px 64px rgba(0,0,0,0.2);
             display: flex; flex-direction: column; overflow: hidden;
         }
+        .ai-header {
+            background: linear-gradient(135deg, #7c3aed, #6366f1);
+            padding: 16px 20px; color: white;
+            display: flex; justify-content: space-between; align-items: center;
+        }
         #aiMessages {
-            flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 4px;
-            background: #fafafa;
+            flex: 1; overflow-y: auto; padding: 16px;
+            display: flex; flex-direction: column; gap: 6px;
+            background: #fafbff;
         }
+        .ai-bubble {
+            max-width: 85%; padding: 10px 14px; border-radius: 16px;
+            font-size: 0.82rem; line-height: 1.55; word-break: break-word;
+            white-space: pre-wrap;
+        }
+        .ai-bubble-user { align-self: flex-start; background: var(--primary); color: white; border-radius: 16px 16px 4px 16px; }
+        .ai-bubble-bot { align-self: flex-end; background: #f1f5f9; color: var(--text); border-radius: 16px 16px 16px 4px; }
+        .ai-apply-btn {
+            align-self: flex-end; background: var(--success); color: white;
+            border: none; padding: 8px 18px; border-radius: 12px; font-weight: 700;
+            font-size: 0.8rem; cursor: pointer; font-family: 'Assistant', sans-serif;
+            transition: 0.15s; margin-bottom: 4px;
+        }
+        .ai-apply-btn:hover { background: #059669; }
 
-        /* Undo/Redo btns */
-        .undo-btn {
-            background: white; border: 1.5px solid #e2e8f0; color: #475569;
-            width: 34px; height: 34px; border-radius: 9px; font-size: 1rem;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        /* ── INPUT ── */
+        .input-base {
+            border: 2px solid var(--border); border-radius: 12px;
+            padding: 9px 14px; font-size: 0.9rem; outline: none;
+            font-family: 'Assistant', sans-serif; transition: border-color 0.15s; width: 100%;
         }
-        .undo-btn:hover:not(:disabled) { background: #f1f5f9; border-color: #4f46e5; color: #4f46e5; }
-        .undo-btn:disabled { cursor: not-allowed; }
+        .input-base:focus { border-color: var(--primary); }
 
         @media print {
-            header, aside, .mode-toolbar-wrap, #aiPanel, #editModal { display: none !important; }
+            .app-header, .sidebar, .mode-toolbar, #aiPanel, .modal-backdrop, .satisfaction-wrap { display: none !important; }
             body { background: white; }
             .desk.hidden-desk { visibility: hidden; }
         }
     </style>
 </head>
-<body class="overflow-x-hidden">
-<div class="min-h-screen flex flex-col">
+<body>
+<div style="min-height:100vh;display:flex;flex-direction:column;">
 
     <!-- HEADER -->
-    <header class="bg-white shadow-md p-3 flex justify-between items-center sticky top-0 z-40 gap-2">
-        <div class="flex items-center gap-3">
-            <button onclick="toggleSidebar()" class="text-2xl lg:hidden p-1 rounded-lg hover:bg-gray-100">☰</button>
-            <h1 class="text-lg font-extrabold text-indigo-600 tracking-tight">ClassManager <span class="text-gray-300 font-light text-sm">Pro</span></h1>
+    <header class="app-header">
+        <div class="header-logo">
+            <button onclick="toggleSidebar()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:#64748b;padding:4px;border-radius:8px;display:flex;" class="lg:hidden">☰</button>
+            <img src="assets/icons/ClassManager.svg" alt="logo" onerror="this.style.display='none'">
+            <span class="header-logo-text">ClassManager <span>Pro</span></span>
             <span id="saveIndicator">💾 נשמר</span>
         </div>
-        <div class="flex gap-2 items-center">
-            <!-- Undo / Redo -->
-            <button id="undoBtn" onclick="undo()" class="undo-btn" title="בטל (Ctrl+Z)" disabled>↩️</button>
-            <button id="redoBtn" onclick="redo()" class="undo-btn" title="חזור (Ctrl+Y)" disabled>↪️</button>
-
-            <button onclick="openAIPanel()" class="bg-gradient-to-r from-violet-500 to-indigo-500 text-white px-3 py-2 rounded-lg font-bold shadow hover:opacity-90 active:scale-95 transition text-sm flex items-center gap-1.5">
-                🤖 <span class="hidden sm:inline">עוזר AI</span>
+        <div class="header-actions">
+            <button id="undoBtn" onclick="undo()" class="btn-icon" title="בטל (Ctrl+Z)" disabled>↩️</button>
+            <button id="redoBtn" onclick="redo()" class="btn-icon" title="חזור (Ctrl+Y)" disabled>↪️</button>
+            <button onclick="openAIPanel()" class="btn btn-primary" style="background:linear-gradient(135deg,#7c3aed,#6366f1);">
+                🤖 <span class="hidden-mobile">עוזר AI</span>
             </button>
-            <button onclick="runSmartSort()" class="bg-indigo-600 text-white px-3 py-2 rounded-lg font-bold shadow hover:bg-indigo-700 active:scale-95 transition text-sm">🪄 סידור</button>
-            <button onclick="window.print()" class="bg-gray-100 p-2 rounded-lg border hover:bg-gray-200" title="הדפסה">🖨️</button>
-            <button onclick="exportJSON()" class="bg-gray-100 p-2 rounded-lg border hover:bg-gray-200" title="ייצוא JSON">💾</button>
+            <button onclick="runSmartSort()" class="btn btn-primary">🪄 <span class="hidden-mobile">סידור</span></button>
+            <button onclick="window.print()" class="btn-icon" title="הדפסה">🖨️</button>
+            <button onclick="exportJSON()" class="btn-icon" title="ייצוא">💾</button>
         </div>
     </header>
 
-    <div class="flex flex-1 relative">
+    <div style="display:flex;flex:1;position:relative;">
 
         <!-- SIDEBAR -->
-        <aside id="sidebar" class="sidebar w-72 bg-white border-l shadow-xl p-4 overflow-y-auto flex-shrink-0">
-            <div class="flex justify-between items-center mb-5 lg:hidden">
-                <h3 class="font-bold text-base">⚙️ הגדרות</h3>
-                <button onclick="toggleSidebar()" class="text-xl hover:text-red-500">✕</button>
-            </div>
+        <aside id="sidebar" class="sidebar">
 
-            <!-- ADD STUDENT MANUALLY -->
-            <div class="mb-5">
-                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">הוספת תלמיד</h4>
-                <div class="flex gap-2">
-                    <input
-                        type="text"
-                        id="newStudentName"
-                        placeholder="שם התלמיד..."
-                        onkeydown="handleNewStudentKeydown(event)"
-                        class="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 transition"
-                    >
-                    <button
-                        onclick="addStudentManually()"
-                        class="bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold text-sm hover:bg-indigo-700 active:scale-95 transition"
-                        title="הוסף תלמיד"
-                    >➕</button>
+            <!-- ADD STUDENT -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">הוספת תלמיד</div>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" id="newStudentName" placeholder="שם התלמיד..." onkeydown="handleNewStudentKeydown(event)" class="input-base">
+                    <button onclick="addStudentManually()" class="btn btn-primary" style="padding:9px 14px;">➕</button>
                 </div>
             </div>
 
-            <hr class="border-gray-100 mb-4">
-
-            <div class="space-y-2 mb-5">
-                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">ייבוא נתונים</h4>
-                <label class="flex items-center gap-2 w-full bg-indigo-50 text-indigo-700 py-2.5 px-3 rounded-xl border-2 border-dashed border-indigo-200 cursor-pointer hover:bg-indigo-100 transition text-sm font-semibold">
-                    📥 רשימת תלמידים (Excel/JSON)
-                    <input type="file" id="fileStudents" hidden accept=".xlsx,.xls,.json" onchange="handleStudentsImport(event)">
+            <!-- IMPORT -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">ייבוא נתונים</div>
+                <label style="display:flex;align-items:center;gap:8px;background:#eef2ff;color:#4338ca;padding:10px 12px;border-radius:12px;border:2px dashed #a5b4fc;cursor:pointer;font-size:0.82rem;font-weight:700;margin-bottom:8px;">
+                    📥 תלמידים (Excel/JSON)
+                    <input type="file" hidden accept=".xlsx,.xls,.json" onchange="handleStudentsImport(event)">
                 </label>
-                <label class="flex items-center gap-2 w-full bg-emerald-50 text-emerald-700 py-2.5 px-3 rounded-xl border-2 border-dashed border-emerald-200 cursor-pointer hover:bg-emerald-100 transition text-sm font-semibold">
-                    🔗 אילוצים חברתיים (JSON)
-                    <input type="file" id="fileConstraints" hidden accept=".json" onchange="handleConstraintsImport(event)">
+                <label style="display:flex;align-items:center;gap:8px;background:#f0fdf4;color:#166534;padding:10px 12px;border-radius:12px;border:2px dashed #86efac;cursor:pointer;font-size:0.82rem;font-weight:700;">
+                    🔗 אילוצים (JSON)
+                    <input type="file" hidden accept=".json" onchange="handleConstraintsImport(event)">
                 </label>
-                <div class="bg-gray-50 rounded-xl p-3 text-xs text-gray-500">
-                    <strong class="text-gray-700">מבנה קובץ אילוצים:</strong><br>
-                    <code class="text-indigo-600">[{"id":1,"preferred":[2],"forbidden":[3]}]</code>
-                </div>
             </div>
 
-            <hr class="border-gray-100 mb-4">
-
-            <div class="mb-5">
-                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">מידות כיתה</h4>
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border">
-                        <span class="text-sm font-semibold">טורים: <span id="colCount" class="text-indigo-600">8</span></span>
-                        <div class="flex gap-1.5">
+            <!-- GRID SIZE -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">מידות כיתה</div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:10px 12px;border-radius:12px;border:1px solid var(--border);">
+                        <span style="font-size:0.85rem;font-weight:700;">טורים: <span id="colCount" style="color:var(--primary);">8</span></span>
+                        <div style="display:flex;gap:6px;">
                             <button onclick="changeGrid('cols',1)" class="grid-ctrl-btn">+</button>
                             <button onclick="changeGrid('cols',-1)" class="grid-ctrl-btn">−</button>
                         </div>
                     </div>
-                    <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border">
-                        <span class="text-sm font-semibold">שורות: <span id="rowCount" class="text-indigo-600">6</span></span>
-                        <div class="flex gap-1.5">
+                    <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:10px 12px;border-radius:12px;border:1px solid var(--border);">
+                        <span style="font-size:0.85rem;font-weight:700;">שורות: <span id="rowCount" style="color:var(--primary);">6</span></span>
+                        <div style="display:flex;gap:6px;">
                             <button onclick="changeGrid('rows',1)" class="grid-ctrl-btn">+</button>
                             <button onclick="changeGrid('rows',-1)" class="grid-ctrl-btn">−</button>
                         </div>
@@ -195,115 +347,135 @@
                 </div>
             </div>
 
-            <hr class="border-gray-100 mb-4">
-
-            <div>
-                <div class="flex justify-between items-center mb-2">
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">תלמידים ממתינים</h4>
-                    <span id="poolCount" class="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-bold">0</span>
+            <!-- SATISFACTION -->
+            <div class="sidebar-section">
+                <div class="satisfaction-wrap">
+                    <div class="satisfaction-header">
+                        <span class="satisfaction-title">מד שביעות רצון אילוצים</span>
+                        <span id="satisfactionLabel" style="font-size:0.78rem;font-weight:800;">—</span>
+                    </div>
+                    <div class="satisfaction-track">
+                        <div id="satisfactionBar" style="width:0%;"></div>
+                    </div>
+                    <div id="satisfactionDetail" style="font-size:0.68rem;color:#94a3b8;margin-top:4px;"></div>
                 </div>
-                <div id="studentPool" class="min-h-[80px] bg-gray-50 rounded-xl p-2 border-2 border-dashed flex flex-wrap gap-1.5"></div>
             </div>
 
-            <!-- Legend -->
-            <hr class="border-gray-100 mt-4 mb-3">
-            <div class="text-xs text-gray-500 space-y-1.5">
-                <h4 class="font-bold text-gray-600">מקרא:</h4>
-                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded border-2 border-green-400 bg-green-50"></div><span>שיבוץ מועדף ✅</span></div>
-                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded border-2 border-red-400 bg-red-50"></div><span>קונפליקט חברתי ⚠️</span></div>
-                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded border-2 border-indigo-500 bg-indigo-50"></div><span>מושב נעול 🔒</span></div>
-                <p class="text-gray-400 pt-1">לחיצה ארוכה = נעל/שחרר מושב</p>
-                <p class="text-gray-400">גרור תלמיד לשולחן אחר להחלפה</p>
-                <p class="text-gray-400">Ctrl+Z / Ctrl+Y = בטל/חזור</p>
+            <!-- POOL -->
+            <div class="sidebar-section" style="flex:1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span class="sidebar-section-title" style="margin-bottom:0;">תלמידים ממתינים</span>
+                    <span id="poolCount" style="font-size:0.72rem;background:#eef2ff;color:#4338ca;padding:2px 8px;border-radius:20px;font-weight:800;">0</span>
+                </div>
+                <div id="studentPool" class="pool-container"></div>
+            </div>
+
+            <!-- LEGEND -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">מקרא</div>
+                <div style="display:flex;flex-direction:column;gap:6px;font-size:0.75rem;color:#64748b;">
+                    <div style="display:flex;gap:8px;align-items:center;"><div style="width:16px;height:16px;border-radius:5px;border:2px solid #10b981;background:#f0fdf4;"></div><span>שכן מועדף ✅</span></div>
+                    <div style="display:flex;gap:8px;align-items:center;"><div style="width:16px;height:16px;border-radius:5px;border:2px solid #ef4444;background:#fef2f2;"></div><span>קונפליקט ⚠️</span></div>
+                    <div style="display:flex;gap:8px;align-items:center;"><div style="width:16px;height:16px;border-radius:5px;border:2px solid #6366f1;background:#eef2ff;"></div><span>נעול 🔒</span></div>
+                    <div style="margin-top:4px;color:#94a3b8;font-size:0.7rem;line-height:1.6;">
+                        לחיצה ארוכה = נעל/שחרר<br>
+                        גרור = החלפת מושב<br>
+                        Ctrl+Z / Ctrl+Y = בטל/חזור
+                    </div>
+                </div>
             </div>
         </aside>
 
-        <!-- MAIN -->
-        <main class="flex-1 p-4 lg:p-6 overflow-auto">
-            <div class="flex flex-col items-center">
-                <div class="mode-toolbar-wrap flex flex-wrap justify-center gap-2 mb-5">
-                    <button id="normalBtn"    onclick="setMode('normal')"    class="mode-btn active bg-white border px-4 py-2 rounded-full text-xs font-bold">✏️ רגיל</button>
-                    <button id="structureBtn" onclick="setMode('structure')" class="mode-btn bg-white border px-4 py-2 rounded-full text-xs font-bold">🚫 הסתר שולחן</button>
-                    <button id="gapColBtn"    onclick="setMode('gapCol')"    class="mode-btn bg-white border px-4 py-2 rounded-full text-xs font-bold">↔️ רווח טור</button>
-                    <button id="gapRowBtn"    onclick="setMode('gapRow')"    class="mode-btn bg-white border px-4 py-2 rounded-full text-xs font-bold">↕️ רווח שורה</button>
-                    <button onclick="clearGrid()" class="bg-red-50 text-red-500 px-4 py-2 rounded-full text-xs font-bold border border-red-100 hover:bg-red-100">🗑️ נקה</button>
-                </div>
-                <div class="teacher-desk">לוח הכיתה / שולחן מורה</div>
-                <div id="gridWrapper" class="relative"></div>
+        <!-- MAIN CLASSROOM -->
+        <main class="classroom-main">
+            <!-- MODE TOOLBAR -->
+            <div class="mode-toolbar">
+                <button id="normalBtn"    onclick="setMode('normal')"    class="mode-btn active">✏️ רגיל</button>
+                <button id="structureBtn" onclick="setMode('structure')" class="mode-btn">🚫 הסתר שולחן</button>
+                <button id="gapColBtn"    onclick="setMode('gapCol')"    class="mode-btn">↔️ רווח טור</button>
+                <button id="gapRowBtn"    onclick="setMode('gapRow')"    class="mode-btn">↕️ רווח שורה</button>
+                <button onclick="clearGrid()" style="background:#fff0f0;color:#ef4444;padding:7px 14px;border-radius:50px;font-size:0.78rem;font-weight:700;border:1.5px solid #fecaca;cursor:pointer;font-family:Assistant,sans-serif;">🗑️ נקה</button>
             </div>
+
+            <!-- TEACHER DESK -->
+            <div class="teacher-desk">🏫 לוח / שולחן מורה</div>
+
+            <!-- GRID -->
+            <div id="gridWrapper"></div>
         </main>
     </div>
 </div>
 
 <!-- EDIT MODAL -->
-<div id="editModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(3px); z-index:50; align-items:center; justify-content:center; padding:16px;">
-    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
-        <!-- Modal Header -->
-        <div class="p-5 pb-0">
-            <h3 class="text-lg font-extrabold mb-0.5" id="modalTitle">עריכת תלמיד</h3>
-            <p class="text-xs text-gray-400 mb-4" id="modalSub"></p>
-            <label class="text-xs font-bold text-gray-500 mb-1 block">שם תלמיד</label>
-            <input type="text" id="editNameInput" class="w-full border-2 border-gray-200 rounded-xl p-3 focus:border-indigo-500 outline-none transition text-sm mb-4">
+<div id="editModal" class="modal-backdrop">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">עריכת תלמיד</h3>
+            <p class="modal-sub" id="modalSub"></p>
+            <label class="modal-label">שם תלמיד</label>
+            <input type="text" id="editNameInput" class="modal-input" style="margin-bottom:4px;">
         </div>
 
-        <!-- Constraints Editor -->
-        <div class="px-5 pb-3">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">אילוצים חברתיים</p>
-            <div id="constraintsEditor" class="bg-gray-50 rounded-xl p-3 border max-h-48 overflow-y-auto"></div>
+        <!-- POSITION PREFS -->
+        <div class="modal-section">
+            <div class="modal-section-title">העדפות מיקום</div>
+            <div id="positionPrefs"></div>
         </div>
 
-        <!-- Actions -->
-        <div class="flex gap-2 p-4 pt-2 border-t">
-            <button onclick="saveQuickEdit()" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-700">שמור</button>
-            <button onclick="moveToPool()" class="flex-1 bg-amber-50 text-amber-700 border border-amber-200 py-2.5 rounded-xl font-bold text-sm hover:bg-amber-100">למאגר</button>
-            <button onclick="removeStudent()" class="bg-red-50 text-red-500 border border-red-100 px-3 py-2.5 rounded-xl font-bold text-sm hover:bg-red-100" title="מחק תלמיד">🗑️</button>
-            <button onclick="closeModal()" class="bg-gray-100 px-3 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200">✕</button>
+        <!-- CONSTRAINTS -->
+        <div class="modal-section">
+            <div class="modal-section-title">אילוצים חברתיים</div>
+            <div id="constraintsEditor" style="max-height:200px;overflow-y:auto;"></div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="modal-footer">
+            <button onclick="saveQuickEdit()" class="btn btn-primary" style="flex:1;">שמור</button>
+            <button onclick="moveToPool()" style="flex:1;background:#fffbeb;color:#92400e;border:1.5px solid #fde68a;padding:8px;border-radius:12px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:Assistant,sans-serif;">למאגר</button>
+            <button onclick="removeStudent()" style="background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;padding:8px 12px;border-radius:12px;font-weight:700;cursor:pointer;font-size:0.85rem;font-family:Assistant,sans-serif;" title="מחק">🗑️</button>
+            <button onclick="closeModal()" style="background:#f1f5f9;padding:8px 12px;border-radius:12px;font-weight:700;cursor:pointer;border:none;font-size:0.85rem;font-family:Assistant,sans-serif;">✕</button>
         </div>
     </div>
 </div>
 
 <!-- AI PANEL -->
-<div id="aiPanel" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.5); backdrop-filter:blur(4px); z-index:60; align-items:flex-end; justify-content:flex-end; padding:20px;">
+<div id="aiPanel">
     <div id="aiPanelInner">
-        <!-- Header -->
-        <div class="flex items-center justify-between p-4 border-b bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-t-2xl">
+        <div class="ai-header">
             <div>
-                <h3 class="font-extrabold text-base">🤖 עוזר AI</h3>
-                <p class="text-xs opacity-75">מופעל על-ידי GPT-4o mini</p>
+                <div style="font-weight:900;font-size:1rem;">🤖 עוזר AI</div>
+                <div style="font-size:0.72rem;opacity:0.75;">GPT-4o mini • מופעל על הכיתה שלך</div>
             </div>
-            <div class="flex items-center gap-2">
-                <button onclick="clearAPIKey()" class="text-xs bg-white/20 px-2 py-1 rounded-lg hover:bg-white/30">🔑 מפתח</button>
-                <button onclick="closeAIPanel()" class="text-xl hover:opacity-75">✕</button>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button onclick="clearAPIKey()" style="font-size:0.72rem;background:rgba(255,255,255,0.2);color:white;border:none;padding:5px 10px;border-radius:8px;cursor:pointer;font-family:Assistant,sans-serif;">🔑</button>
+                <button onclick="closeAIPanel()" style="background:none;border:none;color:white;font-size:1.3rem;cursor:pointer;line-height:1;">✕</button>
             </div>
         </div>
 
-        <!-- Key Setup -->
-        <div id="aiKeySetup" class="p-5 flex flex-col gap-3" style="display:none">
-            <div class="bg-indigo-50 rounded-xl p-4 text-sm text-indigo-700">
+        <div id="aiKeySetup" style="padding:20px;display:none;flex-direction:column;gap:12px;">
+            <div style="background:#eef2ff;border-radius:14px;padding:14px;font-size:0.85rem;color:#4338ca;line-height:1.5;">
                 <strong>🔐 הכנס מפתח OpenAI</strong><br>
-                המפתח נשמר רק במכשיר שלך (localStorage) ולא נשלח לשרת.
+                נשמר רק אצלך — לא נשלח לשרת.
             </div>
-            <input type="password" id="apiKeyInput" placeholder="sk-..." class="w-full border-2 border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-indigo-500 font-mono">
-            <button onclick="saveAPIKey()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-indigo-700">שמור והמשך</button>
-            <p class="text-xs text-gray-400 text-center">קבל מפתח בחינם: <a href="https://platform.openai.com/api-keys" target="_blank" class="text-indigo-500 underline">platform.openai.com</a></p>
+            <input type="password" id="apiKeyInput" placeholder="sk-..." class="input-base" style="font-family:monospace;">
+            <button onclick="saveAPIKey()" class="btn btn-primary" style="width:100%;justify-content:center;">שמור והמשך</button>
+            <p style="font-size:0.75rem;color:#94a3b8;text-align:center;">קבל מפתח: <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--primary);">platform.openai.com</a></p>
         </div>
 
-        <!-- Chat -->
-        <div id="aiChat" class="flex flex-col flex-1 overflow-hidden" style="display:none">
-            <div id="aiMessages" class="flex-1 overflow-y-auto p-4 flex flex-col">
-                <div style="align-self:flex-end;background:#f1f5f9;color:#1e293b;padding:10px 14px;border-radius:16px 16px 16px 4px;font-size:0.82rem;max-width:85%;margin-bottom:8px;">
-                    שלום! אני יכול לעזור לך לסדר את הכיתה. נסה לשאול אותי:<br>
-                    • "מי כדאי לשבת ליד יוסי?"<br>
-                    • "סדר את כל הכיתה לפי האילוצים"<br>
-                    • "יש קונפליקטים בסידור הנוכחי?"
+        <div id="aiChat" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+            <div id="aiMessages">
+                <div class="ai-bubble ai-bubble-bot">
+                    שלום! אני מכיר את הכיתה שלך ויכול לעזור:<br>
+                    • "סדר את הכיתה לפי כל האילוצים"<br>
+                    • "מי כדאי לשבת ליד דוד?"<br>
+                    • "יש קונפליקטים בסידור הנוכחי?"<br>
+                    • "הצע שיפורים לסידור"
                 </div>
             </div>
-            <div class="p-3 border-t bg-white">
-                <div class="flex gap-2">
-                    <textarea id="aiInput" onkeydown="handleAIKeydown(event)" rows="2"
-                        class="flex-1 border-2 border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-indigo-500 resize-none font-family-inherit"
-                        placeholder="שאל שאלה... (Enter לשליחה)"></textarea>
-                    <button onclick="sendAIMessage()" class="bg-indigo-600 text-white px-4 rounded-xl font-bold hover:bg-indigo-700 active:scale-95 transition text-sm">שלח</button>
+            <div style="padding:12px;border-top:1px solid var(--border);background:white;">
+                <div style="display:flex;gap:8px;">
+                    <textarea id="aiInput" onkeydown="handleAIKeydown(event)" rows="2" class="input-base" style="resize:none;" placeholder="שאל שאלה... (Enter לשליחה)"></textarea>
+                    <button onclick="sendAIMessage()" class="btn btn-primary" style="padding:10px 16px;">שלח</button>
                 </div>
             </div>
         </div>
@@ -312,13 +484,17 @@
 
 <script src="script.js"></script>
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('[PWA] registered'))
-        .catch(err => console.warn('[PWA] failed:', err));
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('[PWA] registered'))
+                .catch(err => console.warn('[PWA] failed:', err));
+        });
+    }
+    // Hide mobile text on small screens
+    document.querySelectorAll('.hidden-mobile').forEach(el => {
+        if (window.innerWidth < 640) el.style.display = 'none';
     });
-  }
 </script>
 </body>
-</html>
+                    </html>
